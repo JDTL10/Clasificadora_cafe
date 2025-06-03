@@ -1,8 +1,9 @@
 module tt_um_JDTL10 (
     input  wire [7:0] ui_in,
     output wire [7:0] uo_out,
-    input  wire       clk,      // Reloj global permitido
-    input  wire       rst_n,    // Reset global activo bajo
+    input  wire       clk,
+    input  wire       rst_n,
+    input  wire       ena,
     input  wire [7:0] uio_in,
     output wire [7:0] uio_out,
     output wire [7:0] uio_oe
@@ -39,3 +40,4 @@ module tt_um_JDTL10 (
     assign uio_oe  = 8'b0;
 
 endmodule
+
