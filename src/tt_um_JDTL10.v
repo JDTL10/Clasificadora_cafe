@@ -1,35 +1,43 @@
 module tt_um_JDTL10 (
-    input  wire [7:0] ui_in,
-    output wire [7:0] uo_out,
-    input  wire [7:0] uio_in,   // No usado
-    output wire [7:0] uio_out,  // No usado
-    output wire [7:0] uio_oe,   // No usado
-    input  wire       ena,
-    input  wire       clk,
-    input  wire       rst_n
+    input  wire [7:0] ui_in,    // Inputs from Tiny Tapeout
+    output wire [7:0] uo_out,   // Outputs to Tiny Tapeout
+    input  wire       clk,      // Global clock (opcional)
+    input  wire       rst_n,    // Global reset (activo bajo)
+    input  wire [7:0] uio_in,
+    output wire [7:0] uio_out,
+    output wire [7:0] uio_oe
 );
-    wire [3:0] A = ui_in[3:0];
-    wire [3:0] B = ui_in[7:4];
 
-    wire [3:0] Result;
-    wire CarryOut_ALU, Overflow_ALU, Zero, Negative;
+    // Asignaciones de pines
+    wire sensor_tamano = ui_in[0];
+    wire sensor_peso   = ui_in[1];
+    wire sensor_color  = ui_in[2];
+    wire reset         = ui_in[3];
+    wire clk_local     = ui_in[4];  // opcional usar clk externo
 
-    ALU alu_inst (
-        .A(A),
-        .B(B),
-        .Result(Result),
-        .CarryOut_ALU(CarryOut_ALU),
-        .Overflow_ALU(Overflow_ALU),
-        .Zero(Zero),
-        .Negative(Negative)
+    // Señales de salida de FSM
+    wire led_baja, led_media, led_alta;
+
+    // Instanciación del clasificador de café
+    clasificador_cafe clasif (
+        .clk(clk_local),
+        .reset(reset),
+        .sensor_tamano(sensor_tamano),
+        .sensor_peso(sensor_peso),
+        .sensor_color(sensor_color),
+        .led_baja(led_baja),
+        .led_media(led_media),
+        .led_alta(led_alta)
     );
 
-    assign uo_out[3:0] = Result;
-    assign uo_out[4]   = CarryOut_ALU;
-    assign uo_out[5]   = Overflow_ALU;
-    assign uo_out[6]   = Zero;
-    assign uo_out[7]   = Negative;
+    // Salidas del sistema
+    assign uo_out[0] = led_baja;
+    assign uo_out[1] = led_media;
+    assign uo_out[2] = led_alta;
+    assign uo_out[7:3] = 5'b00000;
 
+    // No usamos pines bidireccionales
     assign uio_out = 8'b0;
     assign uio_oe  = 8'b0;
+
 endmodule
